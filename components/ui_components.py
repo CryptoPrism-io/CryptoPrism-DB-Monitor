@@ -191,15 +191,25 @@ class DataVisualization:
             
             # Ensure datetime columns are timezone-naive and properly formatted
             if start_col in timeline_data.columns:
-                timeline_data[start_col] = pd.to_datetime(timeline_data[start_col], utc=True).dt.tz_localize(None)
+                timeline_data[start_col] = pd.to_datetime(timeline_data[start_col], utc=True, errors='coerce').dt.tz_localize(None)
             
             if end_col in timeline_data.columns:
-                timeline_data[end_col] = pd.to_datetime(timeline_data[end_col], utc=True).dt.tz_localize(None)
+                timeline_data[end_col] = pd.to_datetime(timeline_data[end_col], utc=True, errors='coerce').dt.tz_localize(None)
                 
                 # Handle null end_times by setting to start_time + 1 minute for visualization
                 null_end_times = timeline_data[end_col].isna()
-                if null_end_times.any():
+                if null_end_times.any() and start_col in timeline_data.columns:
                     timeline_data.loc[null_end_times, end_col] = timeline_data.loc[null_end_times, start_col] + pd.Timedelta(minutes=1)
+            
+            # Remove rows with invalid datetime values after conversion
+            if start_col in timeline_data.columns:
+                timeline_data = timeline_data.dropna(subset=[start_col])
+            if end_col in timeline_data.columns:
+                timeline_data = timeline_data.dropna(subset=[end_col])
+                
+            if timeline_data.empty:
+                st.info("No valid timeline data after processing")
+                return
 
             # Validate required columns exist
             if group_col not in timeline_data.columns:
