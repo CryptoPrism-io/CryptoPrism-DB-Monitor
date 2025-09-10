@@ -38,9 +38,9 @@ class DatabaseService:
                     config.db_connection_string,
                     **config.db_pool_config
                 )
-                print(f"✅ Database engine initialized successfully")
+                print(f"Database engine initialized successfully")
             except Exception as e:
-                print(f"❌ Failed to initialize database engine: {str(e)}")
+                print(f"Failed to initialize database engine: {str(e)}")
                 raise
 
         return self._engine
@@ -65,7 +65,7 @@ class DatabaseService:
             self._last_health_check = datetime.now()
             return True
         except Exception as e:
-            print(f"❌ Database connection test failed: {str(e)}")
+            print(f"Database connection test failed: {str(e)}")
             self._connection_status = False
             return False
 
@@ -83,15 +83,15 @@ class DatabaseService:
             List of dictionaries containing query results
         """
         if timeout is None:
-            timeout = config.get('query_timeout', 30)
+            try:
+                timeout = int(config.get('query_timeout', '30'))
+            except (ValueError, TypeError):
+                timeout = 30  # Safe fallback
 
         try:
             with self.get_connection() as conn:
+                # Execute query without custom timeout for now
                 result = conn.execute(text(query).bindparams(**params) if params else text(query))
-
-                # Set query timeout if supported
-                if hasattr(conn, 'execute'):
-                    conn.execute(text(f"SET statement_timeout = {timeout * 1000}"))
 
                 rows = result.fetchall()
 
@@ -102,7 +102,7 @@ class DatabaseService:
                 return []
 
         except Exception as e:
-            print(f"❌ Query execution failed: {str(e)}")
+            print(f"Query execution failed: {str(e)}")
             raise SQLAlchemyError(f"Query failed: {str(e)}")
 
     def execute_query_single(self, query: str, params: Optional[Dict] = None) -> Optional[Dict]:
@@ -117,7 +117,7 @@ class DatabaseService:
                 result = conn.execute(text(query).bindparams(**params) if params else text(query))
                 return result.scalar()
         except Exception as e:
-            print(f"❌ Scalar query failed: {str(e)}")
+            print(f"Scalar query failed: {str(e)}")
             return None
 
     def get_table_exists(self, table_name: str, schema: str = 'public') -> bool:
@@ -132,7 +132,7 @@ class DatabaseService:
         try:
             return self.inspector.get_columns(table_name, schema=schema)
         except Exception as e:
-            print(f"❌ Failed to get columns for {table_name}: {str(e)}")
+            print(f"Failed to get columns for {table_name}: {str(e)}")
             return []
 
     def get_table_count(self, table_name: str) -> int:
@@ -217,7 +217,7 @@ class DatabaseService:
             return stats
 
         except Exception as e:
-            print(f"❌ Failed to get database stats: {str(e)}")
+            print(f"Failed to get database stats: {str(e)}")
             return {
                 'total_tables': 0,
                 'fe_tables': 0,
@@ -231,7 +231,7 @@ class DatabaseService:
         fe_tables = [
             'FE_MOMENTUM_SIGNALS', 'FE_OSCILLATORS_SIGNALS', 'FE_RATIOS_SIGNALS',
             'FE_METRICS_SIGNAL', 'FE_TVV_SIGNALS', 'FE_DMV_ALL', 'FE_DMV_SCORES',
-            'FE_MOMENTUM', 'FE_OSCILLATORS'
+            'FE_MOMENTUM', 'FE_OSCILLATOR'
         ]
 
         return self._get_tables_status(fe_tables)
@@ -251,7 +251,7 @@ class DatabaseService:
         try:
             return self.execute_query(query)
         except Exception as e:
-            print(f"❌ Failed to get table I/O stats: {str(e)}")
+            print(f"Failed to get table I/O stats: {str(e)}")
             return []
 
     def get_index_usage_stats(self) -> List[Dict]:
@@ -270,7 +270,7 @@ class DatabaseService:
         try:
             return self.execute_query(query)
         except Exception as e:
-            print(f"❌ Failed to get index usage stats: {str(e)}")
+            print(f"Failed to get index usage stats: {str(e)}")
             return []
 
     def get_long_running_queries(self) -> List[Dict]:
@@ -297,7 +297,7 @@ class DatabaseService:
         try:
             return self.execute_query(query)
         except Exception as e:
-            print(f"❌ Failed to get long-running queries: {str(e)}")
+            print(f"Failed to get long-running queries: {str(e)}")
             return []
     
     def _get_tables_status(self, table_names: List[str]) -> List[Dict]:
@@ -366,7 +366,11 @@ class DatabaseService:
             return 'Warning'  # Empty table
 
         if last_update:
-            hours_old = (datetime.now() - last_update.replace(tzinfo=None)).total_seconds() / 3600
+            # Ensure both datetimes are timezone-naive for comparison
+            current_time = datetime.now()
+            if hasattr(last_update, 'replace') and last_update.tzinfo is not None:
+                last_update = last_update.replace(tzinfo=None)
+            hours_old = (current_time - last_update).total_seconds() / 3600
             if hours_old < 24:
                 return 'Good'
             elif hours_old < 72:

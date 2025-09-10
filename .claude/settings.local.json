@@ -27,7 +27,11 @@
       "Bash(move Dockerfile.streamlit ETL_DB_dashboarddocker )",
       "Bash(move docker-compose.dashboard.yml ETL_DB_dashboarddocker)",
       "Bash(mv:*)",
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "Bash(copy \"C:\\cpio_db\\CryptoPrism-DB-Utils\\ETL_DB_dashboard\\services\\database_service.py\" services)",
+      "Read(//c/cpio_db/CryptoPrism-DB-Utils/**)",
+      "Bash(find:*)",
+      "Bash(streamlit cache:*)"
     ],
     "deny": [],
     "ask": []

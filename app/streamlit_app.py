@@ -11,10 +11,15 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import altair as alt
 import os
+import sys
 from datetime import datetime, timedelta, timezone
 import time
 import requests
 import json
+
+# Add parent directory to Python path to find services module
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from services.database_service import db_service
 from config.settings import config
 from utils.helpers import check_authentication_status, login_user, logout_user, send_slack_alert
@@ -25,8 +30,8 @@ from dotenv import load_dotenv
 
 # Configuration
 st.set_page_config(
-    page_title="🚀 CryptoPrism Analytics Platform",
-    page_icon="🚀",
+    page_title="CryptoPrism Analytics Platform",
+    page_icon="",
     layout="wide",
     initial_sidebar_state="expanded",
     menu_items={
@@ -126,6 +131,11 @@ st.markdown("""
 
 
 from pages.logs import render_logs_page
+from pages.overview import render_overview_page
+from pages.pipeline_monitor import render_pipeline_monitor_page
+from pages.qa_checks import render_qa_checks_page
+from pages.performance import render_performance_page
+from pages.business_signals import render_business_signals_page
 
 
 
@@ -134,7 +144,7 @@ def check_authentication():
     """Authentication handler using utility functions."""
     if config.auth_config['enabled']:
         if not check_authentication_status():
-            st.markdown('<div class="main-header">🔒 CryptoPrism Dashboard Login</div>', unsafe_allow_html=True)
+            st.markdown('<div class="main-header">LOCKED CryptoPrism Dashboard Login</div>', unsafe_allow_html=True)
             password = st.text_input("Enter dashboard password:", type="password")
             if st.button("Login"):
                 if login_user(password):
@@ -246,7 +256,7 @@ def send_slack_alert(message, level="info"):
 # Dashboard Pages
 def overview_page():
     """Main dashboard overview page."""
-    st.markdown('<div class="main-header">📊 CryptoPrism Database Monitor</div>', unsafe_allow_html=True)
+    st.markdown('<div class="main-header">DASHBOARD CryptoPrism Database Monitor</div>', unsafe_allow_html=True)
     
     # Load summary data
     summary = load_dashboard_summary()
@@ -275,7 +285,7 @@ def overview_page():
         st.metric("Total Rows", f"{summary['total_rows_processed']:,}")
     
     # Recent activity
-    st.subheader("📈 Recent ETL Activity")
+    st.subheader("TRENDING Recent ETL Activity")
     
     etl_data = load_etl_data()
     
@@ -300,7 +310,7 @@ def overview_page():
         st.plotly_chart(fig, use_container_width=True)
         
         # Job performance trends
-        st.subheader("🎯 Performance Trends")
+        st.subheader("TARGET Performance Trends")
         
         col1, col2 = st.columns(2)
         
@@ -342,7 +352,7 @@ def overview_page():
         st.info("No ETL data available. Run some instrumented ETL jobs to see activity here.")
     
     # System health indicators
-    st.subheader("🏥 System Health")
+    st.subheader("HEALTH System Health")
     
     health_col1, health_col2, health_col3 = st.columns(3)
     
@@ -352,20 +362,20 @@ def overview_page():
             engine = get_db_connection()
             with engine.connect() as conn:
                 conn.execute(text("SELECT 1"))
-            st.success("✅ Database Connected")
+            st.success("SUCCESS Database Connected")
         except Exception:
-            st.error("❌ Database Connection Failed")
+            st.error("Database Connection Failed")
     
     with health_col2:
         # Recent failures
         if not etl_data.empty:
             recent_failures = etl_data[etl_data['status'] == 'failed'].head(5)
             if len(recent_failures) > 0:
-                st.warning(f"⚠️ {len(recent_failures)} Recent Failures")
+                st.warning(f"WARNING {len(recent_failures)} Recent Failures")
             else:
-                st.success("✅ No Recent Failures")
+                st.success("SUCCESS No Recent Failures")
         else:
-            st.info("ℹ️ No Data Available")
+            st.info("No Data Available")
     
     with health_col3:
         # Long running jobs
@@ -375,11 +385,11 @@ def overview_page():
                 (etl_data['start_time'] > datetime.now(timezone.utc) - timedelta(hours=24))
             ]
             if len(long_jobs) > 0:
-                st.warning(f"⏱️ {len(long_jobs)} Long-running Jobs")
+                st.warning(f"{len(long_jobs)} Long-running Jobs")
             else:
-                st.success("✅ Normal Job Duration")
+                st.success("SUCCESS Normal Job Duration")
         else:
-            st.info("ℹ️ No Data Available")
+            st.info("No Data Available")
 
 def etl_runs_page():
     """CryptoPrism Pipeline Monitoring - Track actual data flow and pipeline stages."""
@@ -788,16 +798,16 @@ def qa_checks_page():
                 for result in results:
                     status = result.get('status', 'UNKNOWN')
                     if status == 'PASSED':
-                        st.success(f"✅ **{result['test']}**: {result['description']}")
+                        st.success(f"SUCCESS **{result['test']}**: {result['description']}")
                     elif status == 'WARNING':
-                        st.warning(f"⚠️ **{result['test']}**: {result['description']}")
+                        st.warning(f"WARNING **{result['test']}**: {result['description']}")
                     elif status == 'FAILED':
-                        st.error(f"❌ **{result['test']}**: {result['description']}")
+                        st.error(f"**{result['test']}**: {result['description']}")
                     
                     if result.get('details') and isinstance(result['details'], list) and len(result['details']) > 0:
                         with st.expander(f"Details for {result['test']}"):
                             for detail in result['details']:
-                                st.write(f"• {detail}")
+                                st.write(f" {detail}")
                     elif result.get('details') and isinstance(result['details'], str):
                         st.write(f"  Details: {result['details']}")
     
@@ -823,7 +833,7 @@ def qa_checks_page():
                     if fe_results:
                         st.success(f"Found {len(fe_results)} FE tables")
                         for table, cols in fe_results:
-                            st.write(f"• **{table}**: {cols} columns")
+                            st.write(f" **{table}**: {cols} columns")
                     else:
                         st.warning("No FE tables found")
                         
@@ -901,7 +911,7 @@ def qa_checks_page():
             table_summary['pass_rate'] = (table_summary['passed_checks'] / table_summary['total_checks'] * 100).round(1)
             table_summary = table_summary.reset_index()
             
-            st.subheader("📊 Quality by Table")
+            st.subheader("CHARTS Quality by Table")
             
             fig = px.bar(
                 table_summary,
@@ -913,7 +923,7 @@ def qa_checks_page():
             st.plotly_chart(fig, use_container_width=True)
         
         # Recent checks table
-        st.subheader("📋 Recent Quality Checks")
+        st.subheader("RECENT Quality Checks")
         display_qa = qa_data.head(20).copy()
         display_qa['check_time'] = display_qa['check_time'].dt.strftime('%Y-%m-%d %H:%M:%S')
         
@@ -924,11 +934,11 @@ def qa_checks_page():
 
 def performance_page():
     """Database performance monitoring page."""
-    st.markdown('<div class="main-header">⚡ Performance Analytics</div>', unsafe_allow_html=True)
+    st.markdown('<div class="main-header">PERFORMANCE Analytics</div>', unsafe_allow_html=True)
     
     # Load performance toolkits
     try:
-        st.subheader("🔧 Performance Toolkits")
+        st.subheader("TOOLS Performance Toolkits")
         
         col1, col2 = st.columns(2)
         
@@ -965,7 +975,7 @@ def performance_page():
                         if pk_results:
                             st.subheader("Primary Key Analysis Results")
                             for result in pk_results[:15]:  # Show first 15
-                                st.write(f"• {result['table_name']} [{result['constraint_name']}]")
+                                st.write(f" {result['table_name']} [{result['constraint_name']}]")
                         
                         # Query performance metrics
                         with engine.connect() as conn:
@@ -988,7 +998,7 @@ def performance_page():
                             st.subheader("Table Activity Statistics")
                             for result in perf_results:
                                 total_ops = result['inserts'] + result['updates'] + result['deletes']
-                                st.write(f"• {result['tablename']}: {total_ops:,} total operations")
+                                st.write(f" {result['tablename']}: {total_ops:,} total operations")
                         
                     except Exception as e:
                         st.error(f"Database analysis failed: {str(e)}")
@@ -1024,7 +1034,7 @@ def performance_page():
                         if schema_results:
                             st.subheader("Table Schema Summary")
                             for result in schema_results[:15]:  # Show first 15
-                                st.write(f"• **{result['table_name']}**: {result['column_count']} columns")
+                                st.write(f" **{result['table_name']}**: {result['column_count']} columns")
                                 if result['data_types']:
                                     st.write(f"  Types: {result['data_types']}")
                         
@@ -1033,13 +1043,13 @@ def performance_page():
                         if fe_tables_found:
                             st.subheader(f"FE Tables Found: {len(fe_tables_found)}")
                             for fe_table in fe_tables_found:
-                                st.write(f"• **{fe_table['table_name']}**: {fe_table['column_count']} columns")
+                                st.write(f" **{fe_table['table_name']}**: {fe_table['column_count']} columns")
                         
                     except Exception as e:
                         st.error(f"Schema analysis failed: {str(e)}")
         
         # Database performance metrics
-        st.subheader("📈 Database Metrics")
+        st.subheader("METRICS Database Metrics")
         
         try:
             engine = get_db_connection()
@@ -1088,7 +1098,7 @@ def performance_page():
             
             # Table sizes chart
             if not table_sizes.empty:
-                st.subheader("💾 Table Sizes")
+                st.subheader("STORAGE Table Sizes")
                 
                 fig = px.bar(
                     table_sizes,
@@ -1107,7 +1117,7 @@ def performance_page():
 
 def business_signals_page():
     """Business intelligence and signals page with FE tables monitoring."""
-    st.markdown('<div class="main-header">📈 Technical Analysis & FE Tables Monitor</div>', unsafe_allow_html=True)
+    st.markdown('<div class="main-header">ANALYSIS Technical Analysis & FE Tables Monitor</div>', unsafe_allow_html=True)
     
     try:
         engine = get_db_connection()
@@ -1122,11 +1132,11 @@ def business_signals_page():
             'FE_DMV_ALL',
             'FE_DMV_SCORES',
             'FE_MOMENTUM',  # Additional FE tables found in validation
-            'FE_OSCILLATORS'  # Additional FE tables found in validation
+            'FE_OSCILLATOR'  # Additional FE tables found in validation
         ]
         
         # FE Tables Status Dashboard
-        st.subheader("🔧 Core FE Tables Pipeline Status")
+        st.subheader("PIPELINE Core FE Tables Pipeline Status")
         
         fe_table_stats = []
         
@@ -1203,7 +1213,7 @@ def business_signals_page():
                         
                         fe_table_stats.append({
                             'table_name': table,
-                            'status': '✅ Active',
+                            'status': 'SUCCESS Active',
                             'row_count': f"{count:,}",
                             'table_size': size,
                             'last_update_utc': latest_update.strftime('%Y-%m-%d %H:%M:%S UTC') if latest_update else 'No timestamp found',
@@ -1214,7 +1224,7 @@ def business_signals_page():
                     else:
                         fe_table_stats.append({
                             'table_name': table,
-                            'status': '❌ Missing',
+                            'status': 'Missing',
                             'row_count': 0,
                             'table_size': 'N/A',
                             'last_update_utc': 'Table not found',
@@ -1225,7 +1235,7 @@ def business_signals_page():
             except Exception as e:
                 fe_table_stats.append({
                     'table_name': table,
-                    'status': f"❌ Error: {str(e)[:50]}...",
+                    'status': f"Error: {str(e)[:50]}...",
                     'row_count': 'Error',
                     'table_size': 'Error',
                     'last_update_utc': 'Error',
@@ -1240,7 +1250,7 @@ def business_signals_page():
         # Metrics row
         col1, col2, col3, col4 = st.columns(4)
         
-        active_tables = len([s for s in fe_table_stats if '✅ Active' in s['status']])
+        active_tables = len([s for s in fe_table_stats if 'SUCCESS Active' in s['status']])
         total_records = sum([int(str(s['row_count']).replace(',', '')) for s in fe_table_stats if str(s['row_count']).replace(',', '').isdigit()])
         tables_updated_today = len([s for s in fe_table_stats if str(s['today_records']).isdigit() and int(s['today_records']) > 0])
         
@@ -1256,13 +1266,13 @@ def business_signals_page():
             st.metric("Pipeline Health", f"{health_score:.1f}%")
         
         # Detailed table view
-        st.subheader("📊 Detailed FE Tables Status")
+        st.subheader("DETAILS Detailed FE Tables Status")
         
         # Style the dataframe based on status
         def style_fe_status(val):
-            if '✅ Active' in str(val):
+            if 'SUCCESS Active' in str(val):
                 return 'color: #28a745; font-weight: bold'
-            elif '❌' in str(val):
+            elif 'Error' in str(val) or 'Missing' in str(val):
                 return 'color: #dc3545; font-weight: bold'
             return ''
         
@@ -1270,7 +1280,7 @@ def business_signals_page():
         st.dataframe(styled_fe_df, use_container_width=True, height=400)
         
         # Pipeline Flow Visualization
-        st.subheader("🔄 Technical Analysis Pipeline Flow")
+        st.subheader("FLOW Technical Analysis Pipeline Flow")
         
         pipeline_info = {
             "Stage 1 - Data Ingestion": ["LISTINGS (CMC)", "OHLCV (Historical)", "Fear & Greed Index"],
@@ -1280,18 +1290,18 @@ def business_signals_page():
         }
         
         for stage, tables in pipeline_info.items():
-            with st.expander(f"🔍 {stage}"):
+            with st.expander(f"INSPECT {stage}"):
                 st.write("**Tables/Processes:**")
                 for table in tables:
                     # Check if this is an FE table and get its status
                     if table in [s['table_name'] for s in fe_table_stats]:
                         status = next(s['status'] for s in fe_table_stats if s['table_name'] == table)
-                        st.write(f"• {table} - {status}")
+                        st.write(f" {table} - {status}")
                     else:
-                        st.write(f"• {table}")
+                        st.write(f" {table}")
         
         # All Signal Tables Discovery
-        st.subheader("🔍 All Signal & FE Tables Discovery")
+        st.subheader("DISCOVERY All Signal & FE Tables Discovery")
         
         with engine.connect() as conn:
             all_tables_query = """
@@ -1363,10 +1373,11 @@ def get_pipeline_stage(table_name):
         'FE_MOMENTUM_SIGNALS': 'Stage 3: Momentum Signals',
         'FE_MOMENTUM': 'Stage 3: Momentum Base',
         'FE_OSCILLATORS_SIGNALS': 'Stage 4: Oscillator Signals', 
-        'FE_OSCILLATORS': 'Stage 4: Oscillator Base',
+        'FE_OSCILLATOR': 'Stage 4: Oscillator Base',
         'FE_RATIOS_SIGNALS': 'Stage 5: Ratios',
         'FE_DMV_ALL': 'Stage 6: Aggregation',
         'FE_DMV_SCORES': 'Stage 7: Scoring'
+    }
 
 # Main application
 def main():
@@ -1379,12 +1390,12 @@ def main():
     # Sidebar navigation
         
     pages = {
-        "🏠 Overview": render_overview_page,
-        "📊 Pipeline Monitor": render_pipeline_monitor_page,
-        "✅ QA Checks": render_qa_checks_page,
-        "⚡ Performance": render_performance_page,
-        "📈 FE Tables Monitor": render_business_signals_page,
-        "📜 Logs & Artifacts": render_logs_page
+        "HOME Overview": render_overview_page,
+        "MONITOR Pipeline Monitor": render_pipeline_monitor_page,
+        "QA Checks": render_qa_checks_page,
+        "PERFORMANCE Analytics": render_performance_page,
+        "TABLES FE Tables Monitor": render_business_signals_page,
+        "LOGS Logs & Artifacts": render_logs_page
     }
     
     selected_page = st.sidebar.radio("Navigation", list(pages.keys()))
@@ -1401,13 +1412,13 @@ def main():
         st.rerun()
 
     # Manual refresh button
-    if st.sidebar.button("🔄 Refresh Data"):
+    if st.sidebar.button("REFRESH Data"):
         st.cache_data.clear()
         st.cache_resource.clear()
         st.rerun()
 
     # Logout button
-    if st.sidebar.button("🚪 Logout"):
+    if st.sidebar.button("LOGOUT"):
         logout_user()
         st.rerun()
 

@@ -13,9 +13,9 @@ from sqlalchemy import text # Direct import for testing connection
 
 def render_logs_page():
     """Logs and artifacts management page."""
-    st.markdown('<div class="main-header">📜 Logs & Artifacts</div>', unsafe_allow_html=True)
+    st.markdown('<div class="main-header"> Logs & Artifacts</div>', unsafe_allow_html=True)
     
-    st.subheader("📁 Log Files")
+    st.subheader(" Log Files")
     
     # Check for common log locations
     log_locations = [
@@ -58,7 +58,7 @@ def render_logs_page():
         st.info("No log files found in common locations.")
     
     # System information
-    st.subheader("🖥️ System Information")
+    st.subheader(" System Information")
     
     system_info = {
         "Python Version": f"{os.sys.version}",
@@ -72,7 +72,27 @@ def render_logs_page():
         st.text(f"{key}: {value}")
     
     # Database connection test
-    st.subheader("🔌 Connection Test")
+    st.subheader("Connection Test")
     
     if st.button("Test Database Connection"):
-        st.error("Cannot test database connection directly from logs.py. Please use the relevant Dashboard pages.") # Placeholder for refactoring to use db_service
+        try:
+            # Import db_service
+            from services.database_service import db_service
+            
+            if db_service.test_connection():
+                st.success("Database connection successful!")
+                
+                # Show basic database info
+                stats = db_service.get_database_stats()
+                col1, col2, col3 = st.columns(3)
+                
+                with col1:
+                    st.metric("Total Tables", stats.get('total_tables', 'N/A'))
+                with col2:
+                    st.metric("FE Tables", stats.get('fe_tables', 'N/A'))
+                with col3:
+                    st.metric("DB Size", stats.get('database_size', 'N/A'))
+            else:
+                st.error("Database connection failed. Check your configuration.")
+        except Exception as e:
+            st.error(f"Database connection error: {str(e)}")

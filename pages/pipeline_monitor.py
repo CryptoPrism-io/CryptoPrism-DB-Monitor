@@ -59,7 +59,7 @@ def render_pipeline_monitor_page():
         }
 
         # Pipeline status dashboard
-        st.subheader("🔧 Pipeline Stage Status")
+        st.subheader("Pipeline Stage Status")
 
         pipeline_status = []
 
@@ -72,12 +72,12 @@ def render_pipeline_monitor_page():
         render_pipeline_status_summary(pipeline_status)
 
         # Detailed pipeline status
-        st.subheader("📊 Detailed Pipeline Status")
+        st.subheader("Detailed Pipeline Status")
         pipeline_df = pd.DataFrame(pipeline_status)
         DataDisplay.render_dataframe_with_styling(pipeline_df, height=500)
 
         # Data Flow Analysis
-        st.subheader("🔄 Data Flow Analysis")
+        st.subheader("Data Flow Analysis")
 
         flow_checks = [
             {
@@ -112,7 +112,7 @@ def render_pipeline_monitor_page():
                 'query': '''
                 SELECT
                     COUNT(DISTINCT momentum.slug) as momentum_records,
-                    COUNT(DISTINCT osc. slug) as oscillator_records,
+                    COUNT(DISTINCT osc.slug) as oscillator_records,
                     COUNT(DISTINCT dmv.slug) as dmv_records
                 FROM FE_MOMENTUM_SIGNALS momentum
                 LEFT JOIN FE_OSCILLATORS_SIGNALS osc ON momentum.slug = osc.slug
@@ -128,7 +128,7 @@ def render_pipeline_monitor_page():
             render_data_flow_check(flow_check)
 
         # Recent data updates timeline
-        st.subheader("📈 Recent Data Activity")
+        st.subheader("Recent Data Activity")
 
         key_tables = [
             'crypto_listings_latest_1000',
@@ -261,11 +261,11 @@ def render_data_flow_check(flow_check: dict):
                                 f"{flow_rate:.1f}%" if flow_rate <= 100 else f"{flow_rate:.1f}%")
 
                         if flow_rate > 90:
-                            st.success("✅ Good Flow")
+                            st.success("Good Flow")
                         elif flow_rate > 50:
-                            st.warning("⚠️ Moderate Flow")
+                            st.warning("Moderate Flow")
                         else:
-                            st.error("❌ Poor Flow")
+                            st.error("Poor Flow")
 
                     st.write(f"Source: {format_number(source_count)} | Target: {format_number(target_count)}")
                 else:
@@ -290,8 +290,8 @@ def render_recent_updates_dashboard(key_tables: list):
 
                 for col in timestamp_cols:
                     try:
-                        query = f'SELECT MAX("{col}") FROM "{table_name}"'
-                        latest = db_service.execute_scalar(query.replace('{table_name}', table))
+                        query = f'SELECT MAX("{col}") FROM "{table}"'
+                        latest = db_service.execute_scalar(query)
                         if latest:
                             latest_timestamp = latest.replace(tzinfo=None)
                             age_hours = get_age_hours(latest_timestamp)
@@ -351,7 +351,7 @@ def render_recent_updates_dashboard(key_tables: list):
                     delta_value = update['last_update']
 
                 styled_metric_card(
-                    title=f"📊 {update['table']}",
+                    title=f"{update['table']}",
                     value=delta_value,
                     delta=None,
                     color=color

@@ -17,7 +17,7 @@ from utils.helpers import format_number, styled_metric_card
 
 def render_business_signals_page():
     """Business intelligence and signals page with FE tables monitoring."""
-    st.markdown('<div class="main-header">📈 Technical Analysis & FE Tables Monitor</div>', unsafe_allow_html=True)
+    st.markdown('<div class="main-header">Technical Analysis & FE Tables Monitor</div>', unsafe_allow_html=True)
     
     try:
         # Core FE Tables from CryptoPrism pipeline 
@@ -30,11 +30,11 @@ def render_business_signals_page():
             'FE_DMV_ALL',
             'FE_DMV_SCORES',
             'FE_MOMENTUM',
-            'FE_OSCILLATORS'
+            'FE_OSCILLATOR'
         ]
         
         # FE Tables Status Dashboard
-        st.subheader("🔧 Core FE Tables Pipeline Status")
+        st.subheader("Core FE Tables Pipeline Status")
         
         fe_table_stats = []
         
@@ -49,7 +49,7 @@ def render_business_signals_page():
         
         active_tables = len([s for s in fe_table_stats if 'Active' in s['status']])
         total_records = sum([s['row_count'] for s in fe_table_stats if isinstance(s['row_count'], int)])
-        tables_updated_today = sum([1 for s in fe_table_stats if s.get('last_update') and (datetime.now() - s['last_update']).total_seconds() / 3600 < 24])
+        tables_updated_today = sum([1 for s in fe_table_stats if s.get('last_update') and s['last_update'] and (datetime.now() - (s['last_update'].replace(tzinfo=None) if hasattr(s['last_update'], 'tzinfo') and s['last_update'].tzinfo else s['last_update'])).total_seconds() / 3600 < 24])
         
         with col1:
             st.metric("Active FE Tables", f"{active_tables}/{len(fe_tables)}")
@@ -63,7 +63,7 @@ def render_business_signals_page():
             st.metric("Pipeline Health", f"{health_score:.1f}%")
         
         # Detailed table view
-        st.subheader("📊 Detailed FE Tables Status")
+        st.subheader("Detailed FE Tables Status")
         
         # Style the dataframe based on status
         def style_fe_status(val):
@@ -77,7 +77,7 @@ def render_business_signals_page():
         st.dataframe(styled_fe_df, use_container_width=True, height=400)
         
         # Pipeline Flow Visualization
-        st.subheader("🔄 Technical Analysis Pipeline Flow")
+        st.subheader("Technical Analysis Pipeline Flow")
         
         pipeline_info = {
             "Stage 1 - Data Ingestion": ["LISTINGS (CMC)", "OHLCV (Historical)", "Fear & Greed Index"],
@@ -87,18 +87,18 @@ def render_business_signals_page():
         }
         
         for stage, tables in pipeline_info.items():
-            with st.expander(f"🔍 {stage}"):
+            with st.expander(f"{stage}"):
                 st.write("**Tables/Processes:**")
                 for table in tables:
                     # Check if this is an FE table and get its status
                     if table in [s['table_name'] for s in fe_table_stats]:
                         status = next(s['status'] for s in fe_table_stats if s['table_name'] == table)
-                        st.write(f"• {table} - {status}")
+                        st.write(f" {table} - {status}")
                     else:
-                        st.write(f"• {table}")
+                        st.write(f" {table}")
         
         # All Signal Tables Discovery
-        st.subheader("🔍 All Signal & FE Tables Discovery")
+        st.subheader("All Signal & FE Tables Discovery")
         
         # Using db_service for querying all signal tables
         all_tables_query = """
@@ -154,7 +154,7 @@ def get_pipeline_stage(table_name):
         'FE_MOMENTUM_SIGNALS': 'Stage 3: Momentum Signals',
         'FE_MOMENTUM': 'Stage 3: Momentum Base',
         'FE_OSCILLATORS_SIGNALS': 'Stage 4: Oscillator Signals', 
-        'FE_OSCILLATORS': 'Stage 4: Oscillator Base',
+        'FE_OSCILLATOR': 'Stage 4: Oscillator Base',
         'FE_RATIOS_SIGNALS': 'Stage 5: Ratios',
         'FE_DMV_ALL': 'Stage 6: Aggregation',
         'FE_DMV_SCORES': 'Stage 7: Scoring'

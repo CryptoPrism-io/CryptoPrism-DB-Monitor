@@ -12,6 +12,7 @@ import pandas as pd
 from datetime import datetime, timedelta
 import plotly.express as px
 import plotly.graph_objects as go
+import time
 
 from config.settings import config
 from utils.helpers import (
@@ -77,9 +78,9 @@ class StatusIndicators:
     def render_health_status(healthy: bool, title: str = "System Health"):
         """Render system health indicator."""
         if healthy:
-            st.success(f"✅ {title}: All systems operational")
+            st.success(f"{title}: All systems operational")
         else:
-            st.error(f"❌ {title}: Issues detected - check logs")
+            st.error(f"{title}: Issues detected - check logs")
 
     @staticmethod
     def render_table_status_grid(tables_status: List[Dict[str, Any]]):
@@ -89,18 +90,18 @@ class StatusIndicators:
             return
 
         status_icons = {
-            'Active': '✅',
-            'Warning': '⚠️',
-            'Missing': '❌',
-            'Error': '🔧',
-            'Critical': '🚨'
+            'Active': '',
+            'Warning': '',
+            'Missing': '',
+            'Error': '',
+            'Critical': ''
         }
 
         cols = st.columns(min(len(tables_status), 3))
 
         for i, table_info in enumerate(tables_status[:3]):
             with cols[i]:
-                icon = status_icons.get(table_info.get('status', 'Unknown'), '❓')
+                icon = status_icons.get(table_info.get('status', 'Unknown'), '')
                 st.metric(
                     f"{icon} {table_info.get('table_name', 'Unknown').replace('_', ' ').title()}",
                     table_info.get('row_count', '0'),
@@ -311,7 +312,7 @@ class NavigationComponents:
     def render_sidebar_header():
         """Render standardized sidebar header."""
         st.sidebar.markdown("---")
-        st.sidebar.markdown("**🚀 CryptoPrism Analytics**")
+        st.sidebar.markdown("**CryptoPrism Analytics**")
         st.sidebar.markdown(f"Last updated: {datetime.now().strftime('%H:%M:%S')}")
         st.sidebar.markdown("---")
 
@@ -321,7 +322,7 @@ class NavigationComponents:
         col1, col2 = st.sidebar.columns(2)
 
         with col1:
-            if st.sidebar.button("🔄 Refresh Data"):
+            if st.sidebar.button("Refresh Data"):
                 st.cache_data.clear()
                 st.cache_resource.clear()
                 st.rerun()
@@ -358,7 +359,7 @@ class PerformanceMonitors:
             finally:
                 end_time = time.time()
                 execution_time = (end_time - start_time) * 1000
-                st.info(f"⚡ {title}: {execution_time:.2f}ms")
+                st.info(f"{title}: {execution_time:.2f}ms")
 
         return timer()
 

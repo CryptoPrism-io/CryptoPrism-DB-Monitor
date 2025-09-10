@@ -25,7 +25,7 @@ from utils.helpers import (
 def render_overview_page():
     """Render the main dashboard overview page."""
     DashboardLayout.render_header(
-        "📊 CryptoPrism Database Monitor",
+        "CryptoPrism Database Monitor",
         "Real-time analytics dashboard for cryptocurrency data pipelines"
     )
 
@@ -36,7 +36,7 @@ def render_overview_page():
             render_key_metrics(summary)
 
             # Recent ETL activity section
-            st.subheader("📈 Recent ETL Activity")
+            st.subheader("Recent ETL Activity")
             etl_data = load_etl_activity_data()
 
             if not etl_data.empty:
@@ -220,16 +220,16 @@ def render_job_success_rate_analysis(etl_data: pd.DataFrame):
 
 def render_system_health_section(etl_data: pd.DataFrame):
     """Render system health indicators."""
-    st.subheader("🏥 System Health")
+    st.subheader("System Health")
 
     health_col1, health_col2, health_col3 = st.columns(3)
 
     with health_col1:
         # Database connectivity
         if db_service.test_connection():
-            st.success("✅ Database Connected")
+            st.success("Database Connected")
         else:
-            st.error("❌ Database Connection Failed")
+            st.error("Database Connection Failed")
 
     with health_col2:
         # Recent failures analysis
@@ -240,7 +240,7 @@ def render_system_health_section(etl_data: pd.DataFrame):
             ]
 
             if len(recent_failures) > 0:
-                st.warning(f"⚠️ {len(recent_failures)} Recent Failures")
+                st.warning(f"{len(recent_failures)} Recent Failures")
                 # Send alert if failure threshold exceeded
                 if len(recent_failures) >= 3:
                     send_slack_alert(
@@ -248,9 +248,9 @@ def render_system_health_section(etl_data: pd.DataFrame):
                         "warning"
                     )
             else:
-                st.success("✅ No Recent Failures")
+                st.success("No Recent Failures")
         else:
-            st.info("ℹ️ No Data Available")
+            st.info("No Data Available")
 
     with health_col3:
         # Long running jobs analysis
@@ -261,20 +261,20 @@ def render_system_health_section(etl_data: pd.DataFrame):
             ]
 
             if len(long_jobs) > 0:
-                st.warning(f"⏱️ {len(long_jobs)} Long-running Jobs")
+                st.warning(f"{len(long_jobs)} Long-running Jobs")
                 # Show details in expander
                 with st.expander("View Long-running Jobs"):
                     display_cols = ['job_name', 'duration_minutes', 'start_time', 'status']
                     DataDisplay.render_dataframe_with_styling(long_jobs[display_cols], height=200)
             else:
-                st.success("✅ Normal Job Duration")
+                st.success("Normal Job Duration")
         else:
-            st.info("ℹ️ No Data Available")
+            st.info("No Data Available")
 
 
 def render_connection_troubleshooting():
     """Render connection troubleshooting guide."""
-    with st.expander("🔧 Database Connection Troubleshooting"):
+    with st.expander("Database Connection Troubleshooting"):
         st.write("**Steps to resolve connection issues:**")
 
         st.markdown("""
@@ -293,7 +293,7 @@ def render_connection_troubleshooting():
            ```
         """)
 
-        if st.button("🔄 Retry Connection"):
+        if st.button("Retry Connection"):
             if db_service.test_connection():
                 st.success("Connection established!")
                 st.rerun()

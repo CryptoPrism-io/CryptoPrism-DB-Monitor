@@ -293,7 +293,7 @@ def get_pipeline_stage(table_name: str) -> str:
         'FE_MOMENTUM_SIGNALS': 'Stage 3: Momentum Signals',
         'FE_MOMENTUM': 'Stage 3: Momentum Base',
         'FE_OSCILLATORS_SIGNALS': 'Stage 4: Oscillator Signals',
-        'FE_OSCILLATORS': 'Stage 4: Oscillator Base',
+        'FE_OSCILLATOR': 'Stage 4: Oscillator Base',
         'FE_RATIOS_SIGNALS': 'Stage 5: Ratios',
         'FE_DMV_ALL': 'Stage 6: Aggregation',
         'FE_DMV_SCORES': 'Stage 7: Scoring'

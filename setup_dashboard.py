@@ -40,7 +40,7 @@ def check_requirements():
         subprocess.check_call([sys.executable, '-m', 'pip', 'install'] + missing_packages)
         logger.info("Packages installed successfully!")
     else:
-        logger.info("All required packages are installed ✅")
+        logger.info("All required packages are installed ")
 
 def check_environment():
     """Check and validate environment variables."""
@@ -70,7 +70,7 @@ def check_environment():
         logger.error("Please configure database credentials in .env file before continuing.")
         return False
     
-    logger.info("Environment configuration is valid ✅")
+    logger.info("Environment configuration is valid ")
     return True
 
 def create_env_template():
@@ -120,7 +120,7 @@ def test_database_connection():
         with engine.connect() as conn:
             result = conn.execute(text("SELECT version()"))
             version = result.scalar()
-            logger.info(f"Database connection successful ✅")
+            logger.info(f"Database connection successful ")
             logger.info(f"PostgreSQL version: {version}")
         
         return engine
@@ -149,7 +149,7 @@ def setup_database_tables(engine):
             conn.execute(text(sql_commands))
             conn.commit()
         
-        logger.info("Database tables setup completed ✅")
+        logger.info("Database tables setup completed ")
         return True
         
     except Exception as e:
@@ -189,7 +189,7 @@ def verify_setup(engine):
             
             conn.commit()
         
-        logger.info("Database verification completed ✅")
+        logger.info("Database verification completed ")
         return True
         
     except Exception as e:
@@ -207,7 +207,7 @@ def launch_dashboard():
             logger.error("streamlit_app.py not found!")
             return False
         
-        logger.info("🚀 Starting dashboard at http://localhost:8501")
+        logger.info("Starting dashboard at http://localhost:8501")
         logger.info("Use Ctrl+C to stop the dashboard")
         logger.info(f"Login password: {os.getenv('DASHBOARD_PASSWORD', 'admin123')}")
         
@@ -230,7 +230,7 @@ def launch_dashboard():
 
 def main():
     """Main setup function."""
-    print("🚀 CryptoPrism Dashboard Setup")
+    print("CryptoPrism Dashboard Setup")
     print("=" * 50)
     
     # Step 1: Check requirements
@@ -258,7 +258,7 @@ def main():
     if not verify_setup(engine):
         sys.exit(1)
     
-    print("\n🎉 Setup completed successfully!")
+    print("\nSetup completed successfully!")
     print("=" * 50)
     
     # Launch dashboard

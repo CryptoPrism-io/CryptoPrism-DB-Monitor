@@ -34,16 +34,16 @@ def render_qa_checks_page():
     validation_col, quick_test_col = st.columns([2, 1])
 
     with validation_col:
-        st.subheader("🔬 Complete Database Validation")
-        if st.button("🚀 Run Complete Validation Suite", type="primary"):
+        st.subheader(" Complete Database Validation")
+        if st.button("Run Complete Validation Suite", type="primary"):
             run_full_validation_suite()
 
     with quick_test_col:
-        st.subheader("⚡ Quick Tests")
+        st.subheader("Quick Tests")
         render_quick_validation_tests()
 
     # Health monitoring section
-    st.subheader("📊 Live Database Health Monitor")
+    st.subheader("Live Database Health Monitor")
     render_live_health_monitor()
 
     # Historical QA checks
@@ -52,7 +52,7 @@ def render_qa_checks_page():
 
 def run_full_validation_suite():
     """Run comprehensive database validation suite."""
-    with st.spinner("🔬 Running comprehensive database validation..."):
+    with st.spinner(" Running comprehensive database validation..."):
         start_time = time.time()
 
         with PerformanceMonitors.render_query_timer("Full Validation Suite"):
@@ -411,7 +411,7 @@ def display_validation_results(results: list, total_time: float):
     success_rate = calculate_success_rate(passed, total_tests) if total_tests > 0 else 0
 
     # Summary section
-    st.success(f"✅ Validation completed! {total_tests} tests in {total_time:.1f}ms")
+    st.success(f"Validation completed! {total_tests} tests in {total_time:.1f}ms")
 
     metrics = [
         {'title': "Total Tests", 'value': str(total_tests), 'color': "#6c757d"},
@@ -424,7 +424,7 @@ def display_validation_results(results: list, total_time: float):
     DashboardLayout.render_metric_grid(metrics, columns=5)
 
     # Detailed results section
-    st.subheader("📋 Detailed Validation Results")
+    st.subheader("Detailed Validation Results")
 
     status_order = {'PASSED': 0, 'WARNING': 1, 'FAILED': 2, 'ERROR': 3}
 
@@ -435,40 +435,40 @@ def display_validation_results(results: list, total_time: float):
         status = result['status']
 
         if status == 'PASSED':
-            st.success(f"✅ **{result['test']}**: {result['description']}")
+            st.success(f"**{result['test']}**: {result['description']}")
         elif status == 'WARNING':
-            st.warning(f"⚠️ **{result['test']}**: {result['description']}")
+            st.warning(f"**{result['test']}**: {result['description']}")
         elif status == 'FAILED':
-            st.error(f"❌ **{result['test']}**: {result['description']}")
+            st.error(f"FAILED **{result['test']}**: {result['description']}")
         elif status == 'ERROR':
-            st.error(f"🔧 **{result['test']}**: {result['description']}")
+            st.error(f"**{result['test']}**: {result['description']}")
 
         # Show details if available
         if result.get('details') and isinstance(result['details'], list) and len(result['details']) > 0:
             with st.expander(f"View details for {result['test']}"):
                 for detail in result['details']:
-                    st.write(f"• {detail}")
+                    st.write(f" {detail}")
         elif result.get('details') and isinstance(result['details'], str) and result['details']:
             st.write(f"  Details: {result['details']}")
 
 
 def render_quick_validation_tests():
     """Render quick validation test options."""
-    if st.button("🔍 Test FE Tables", type="secondary"):
+    if st.button("Test FE Tables", type="secondary"):
         with st.spinner("Checking FE tables..."):
             try:
                 test_fe_tables_existence()
             except Exception as e:
                 st.error(f"FE table test failed: {str(e)}")
 
-    if st.button("🔗 Test Data Connections", type="secondary"):
+    if st.button(" Test Data Connections", type="secondary"):
         with st.spinner("Testing data flow connections..."):
             try:
                 test_data_flow_connections()
             except Exception as e:
                 st.error(f"Connection test failed: {str(e)}")
 
-    if st.button("⏱️ Performance Test", type="secondary"):
+    if st.button("Performance Test", type="secondary"):
         with st.spinner("Running performance tests..."):
             try:
                 run_performance_test()
@@ -493,7 +493,7 @@ def test_fe_tables_existence():
     if results:
         st.success(f"Found {len(results)} FE tables")
         for row in results:
-            st.write(f"• **{row['table_name']}**: {row['column_count']} columns")
+            st.write(f" **{row['table_name']}**: {row['column_count']} columns")
     else:
         st.warning("No FE tables found")
 
@@ -515,12 +515,12 @@ def test_data_flow_connections():
                 source_count = db_service.get_table_count(source_table)
                 target_count = db_service.get_table_count(target_table)
 
-                st.write(f"✅ **{test_name}**: Source ({source_count:,} records) → Target ({target_count:,} records)")
+                st.write(f"**{test_name}**: Source ({source_count:,} records) → Target ({target_count:,} records)")
             else:
-                st.warning(f"⚠️ **{test_name}**: Missing tables (Source: {source_exists}, Target: {target_exists})")
+                st.warning(f"**{test_name}**: Missing tables (Source: {source_exists}, Target: {target_exists})")
 
         except Exception as e:
-            st.error(f"❌ **{test_name}**: Test failed - {str(e)}")
+            st.error(f"FAILED **{test_name}**: Test failed - {str(e)}")
 
 
 def run_performance_test():
@@ -533,11 +533,11 @@ def run_performance_test():
     query_time = (time.time() - start_time) * 1000
 
     if query_time < 1000:
-        st.success(f"⚡ Database performance: {query_time:.1f}ms - Excellent!")
+        st.success(f"Database performance: {query_time:.1f}ms - Excellent!")
     elif query_time < 5000:
-        st.warning(f"⚠️ Database performance: {query_time:.1f}ms - Acceptable")
+        st.warning(f"Database performance: {query_time:.1f}ms - Acceptable")
     else:
-        st.error(f"❌ Database performance: {query_time:.1f}ms - Needs optimization")
+        st.error(f"SLOW Database performance: {query_time:.1f}ms - Needs optimization")
 
 
 def render_live_health_monitor():
@@ -585,7 +585,7 @@ def render_live_health_monitor():
 
 def render_historical_qa_data():
     """Render historical QA checks data."""
-    st.subheader("📜 Historical Quality Checks")
+    st.subheader(" Historical Quality Checks")
 
     try:
         # Load historical QA data
@@ -627,7 +627,7 @@ def render_historical_qa_data():
             # Display historical QA data
             DataDisplay.render_dataframe_with_styling(
                 df,
-                title="📋 Recent Quality Check Results",
+                title="Recent Quality Check Results",
                 max_rows=100,
                 height=300
             )
