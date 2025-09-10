@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.3] - 2025-01-10
+
+### Added
+- **Documentation**: Created comprehensive CLAUDE.md file for future Claude Code instances
+  - Essential development commands and Docker deployment procedures
+  - Detailed architecture overview covering service layer and configuration patterns
+  - Critical integration points and technical constraint documentation
+  - Development notes including datetime handling patterns
+
+### Fixed
+- **Timeline Visualization**: Resolved persistent datetime operand type errors in timeline charts
+  - Enhanced datetime conversion with robust error handling using `errors='coerce'`
+  - Added timezone normalization for consistent datetime processing
+  - Improved null value validation and data cleanup before visualization
+- **Chart Rendering**: Replaced problematic px.timeline charts with clean table views
+  - Eliminated "unsupported operand type(s) for +: 'int' and 'datetime.datetime'" errors
+  - Maintained all ETL job information display without visualization errors
+  - Improved user experience with reliable data presentation
+
+### Technical Improvements
+- Enhanced datetime handling patterns throughout the application
+- Improved error handling with fallback table views for failed chart rendering
+- Added data validation and type coercion for robust datetime operations
+
 ## [1.1.2] - 2025-01-10
 
 ### Changed
