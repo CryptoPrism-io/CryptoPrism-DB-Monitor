@@ -168,8 +168,14 @@ def load_etl_activity_data() -> pd.DataFrame:
         if rows:
             df = pd.DataFrame(rows)
             if not df.empty:
-                df['start_time'] = pd.to_datetime(df['start_time'])
-                df['end_time'] = pd.to_datetime(df['end_time'])
+                # Handle datetime conversion with timezone normalization
+                df['start_time'] = pd.to_datetime(df['start_time'], utc=True).dt.tz_localize(None)
+                df['end_time'] = pd.to_datetime(df['end_time'], utc=True).dt.tz_localize(None)
+                
+                # Handle null end_times by setting to start_time + 1 minute for visualization
+                null_end_times = df['end_time'].isna()
+                if null_end_times.any():
+                    df.loc[null_end_times, 'end_time'] = df.loc[null_end_times, 'start_time'] + pd.Timedelta(minutes=1)
             return df
 
     except Exception as e:

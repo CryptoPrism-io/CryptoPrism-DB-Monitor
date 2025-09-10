@@ -181,8 +181,14 @@ def load_etl_data():
         if rows:
             df = pd.DataFrame(rows)
             if not df.empty:
-                df['start_time'] = pd.to_datetime(df['start_time'])
-                df['end_time'] = pd.to_datetime(df['end_time'])
+                # Handle datetime conversion with timezone normalization
+                df['start_time'] = pd.to_datetime(df['start_time'], utc=True).dt.tz_localize(None)
+                df['end_time'] = pd.to_datetime(df['end_time'], utc=True).dt.tz_localize(None)
+                
+                # Handle null end_times by setting to start_time + 1 minute for visualization
+                null_end_times = df['end_time'].isna()
+                if null_end_times.any():
+                    df.loc[null_end_times, 'end_time'] = df.loc[null_end_times, 'start_time'] + pd.Timedelta(minutes=1)
             return df
 
         return pd.DataFrame()
@@ -293,21 +299,39 @@ def overview_page():
         # Recent runs chart
         recent_data = etl_data.head(20)
         
-        fig = px.timeline(
-            recent_data,
-            x_start="start_time",
-            x_end="end_time", 
-            y="job_name",
-            color="status",
-            title="Recent ETL Job Timeline",
-            color_discrete_map={
-                'success': '#28a745',
-                'failed': '#dc3545',
-                'running': '#ffc107'
-            }
-        )
-        fig.update_layout(height=400)
-        st.plotly_chart(fig, use_container_width=True)
+        try:
+            # Ensure we have valid data for timeline
+            timeline_data = recent_data[
+                recent_data['start_time'].notna() & 
+                recent_data['end_time'].notna() &
+                (recent_data['end_time'] > recent_data['start_time'])
+            ].copy()
+            
+            if not timeline_data.empty:
+                fig = px.timeline(
+                    timeline_data,
+                    x_start="start_time",
+                    x_end="end_time", 
+                    y="job_name",
+                    color="status",
+                    title="Recent ETL Job Timeline",
+                    color_discrete_map={
+                        'success': '#28a745',
+                        'failed': '#dc3545',
+                        'running': '#ffc107'
+                    }
+                )
+                fig.update_layout(height=400)
+                st.plotly_chart(fig, use_container_width=True)
+            else:
+                st.info("No complete timeline data available for recent jobs.")
+        except Exception as e:
+            st.error(f"Failed to render timeline: {str(e)}")
+            # Fallback: show a simple table instead
+            st.subheader("Recent ETL Jobs (Table View)")
+            display_cols = ['job_name', 'start_time', 'end_time', 'status', 'duration_minutes']
+            available_cols = [col for col in display_cols if col in recent_data.columns]
+            st.dataframe(recent_data[available_cols], use_container_width=True)
         
         # Job performance trends
         st.subheader("TARGET Performance Trends")

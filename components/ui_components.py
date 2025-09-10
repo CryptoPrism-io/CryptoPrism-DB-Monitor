@@ -186,8 +186,32 @@ class DataVisualization:
             return
 
         try:
+            # Create a copy to avoid modifying original data
+            timeline_data = data.copy()
+            
+            # Ensure datetime columns are timezone-naive and properly formatted
+            if start_col in timeline_data.columns:
+                timeline_data[start_col] = pd.to_datetime(timeline_data[start_col], utc=True).dt.tz_localize(None)
+            
+            if end_col in timeline_data.columns:
+                timeline_data[end_col] = pd.to_datetime(timeline_data[end_col], utc=True).dt.tz_localize(None)
+                
+                # Handle null end_times by setting to start_time + 1 minute for visualization
+                null_end_times = timeline_data[end_col].isna()
+                if null_end_times.any():
+                    timeline_data.loc[null_end_times, end_col] = timeline_data.loc[null_end_times, start_col] + pd.Timedelta(minutes=1)
+
+            # Validate required columns exist
+            if group_col not in timeline_data.columns:
+                st.error(f"Required column '{group_col}' not found in data")
+                return
+                
+            if 'status' not in timeline_data.columns:
+                # Add default status if missing
+                timeline_data['status'] = 'unknown'
+
             fig = px.timeline(
-                data,
+                timeline_data,
                 x_start=start_col,
                 x_end=end_col,
                 y=group_col,
@@ -196,7 +220,8 @@ class DataVisualization:
                 color_discrete_map={
                     'success': '#28a745',
                     'failed': '#dc3545',
-                    'running': '#ffc107'
+                    'running': '#ffc107',
+                    'unknown': '#6c757d'
                 }
             )
 
@@ -205,7 +230,7 @@ class DataVisualization:
                 font=dict(size=10)
             )
 
-            # Add vertical line for current time
+            # Add vertical line for current time using timezone-naive datetime
             fig.add_vline(
                 x=datetime.now(),
                 line_dash="dash",
@@ -217,6 +242,11 @@ class DataVisualization:
 
         except Exception as e:
             st.error(f"Failed to render timeline: {str(e)}")
+            # Show fallback table view
+            with st.expander("View Timeline Data as Table"):
+                if not data.empty:
+                    display_cols = [col for col in [start_col, end_col, group_col, 'status'] if col in data.columns]
+                    st.dataframe(data[display_cols].head(10), use_container_width=True)
 
     @staticmethod
     def render_status_pie_chart(status_counts: Dict[str, int], title: str = 'Status Distribution'):
