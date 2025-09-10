@@ -183,9 +183,13 @@ def render_table_index_stats():
         table_io_stats = db_service.get_table_io_stats()
 
         if table_io_stats:
-            df_io = pd.DataFrame(table_io_stats)
-            st.subheader("Top 10 Tables by I/O Activity")
-            DataDisplay.render_dataframe_with_styling(df_io)
+            try:
+                df_io = pd.DataFrame(table_io_stats)
+                st.subheader("Top 10 Tables by I/O Activity")
+                DataDisplay.render_dataframe_with_styling(df_io)
+            except NameError as ne:
+                st.error(f"pandas import error: {str(ne)}")
+                return
 
             # Visualize I/O
             df_io['total_scans'] = df_io['seq_scan'] + df_io['idx_scan']
