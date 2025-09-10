@@ -40,10 +40,14 @@ def render_overview_page():
             etl_data = load_etl_activity_data()
 
             if not etl_data.empty:
-                # Recent runs timeline
-                DataVisualization.render_timeline_gantt(
-                    etl_data.head(20),
-                    title="Recent ETL Job Timeline"
+                # Recent ETL runs table view
+                st.subheader("Recent ETL Jobs")
+                display_cols = ['job_name', 'start_time', 'end_time', 'status', 'duration_minutes', 'rows_processed']
+                available_cols = [col for col in display_cols if col in etl_data.columns]
+                DataDisplay.render_dataframe_with_styling(
+                    etl_data[available_cols].head(20), 
+                    title=None, 
+                    height=400
                 )
 
                 # Performance trends section

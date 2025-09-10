@@ -307,42 +307,12 @@ def overview_page():
     etl_data = load_etl_data()
     
     if not etl_data.empty:
-        # Recent runs chart
+        # Recent ETL jobs table
         recent_data = etl_data.head(20)
-        
-        try:
-            # Ensure we have valid data for timeline
-            timeline_data = recent_data[
-                recent_data['start_time'].notna() & 
-                recent_data['end_time'].notna() &
-                (recent_data['end_time'] > recent_data['start_time'])
-            ].copy()
-            
-            if not timeline_data.empty:
-                fig = px.timeline(
-                    timeline_data,
-                    x_start="start_time",
-                    x_end="end_time", 
-                    y="job_name",
-                    color="status",
-                    title="Recent ETL Job Timeline",
-                    color_discrete_map={
-                        'success': '#28a745',
-                        'failed': '#dc3545',
-                        'running': '#ffc107'
-                    }
-                )
-                fig.update_layout(height=400)
-                st.plotly_chart(fig, use_container_width=True)
-            else:
-                st.info("No complete timeline data available for recent jobs.")
-        except Exception as e:
-            st.error(f"Failed to render timeline: {str(e)}")
-            # Fallback: show a simple table instead
-            st.subheader("Recent ETL Jobs (Table View)")
-            display_cols = ['job_name', 'start_time', 'end_time', 'status', 'duration_minutes']
-            available_cols = [col for col in display_cols if col in recent_data.columns]
-            st.dataframe(recent_data[available_cols], use_container_width=True)
+        st.subheader("Recent ETL Jobs")
+        display_cols = ['job_name', 'start_time', 'end_time', 'status', 'duration_minutes', 'rows_processed']
+        available_cols = [col for col in display_cols if col in recent_data.columns]
+        st.dataframe(recent_data[available_cols], use_container_width=True, height=400)
         
         # Job performance trends
         st.subheader("TARGET Performance Trends")
