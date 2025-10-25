@@ -1,33 +1,22 @@
 <div align="center">
 
-<!-- Animated Gradient Banner -->
-<svg width="100%" height="250" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1">
-        <animate attributeName="stop-color" values="#667eea;#764ba2;#f093fb;#667eea" dur="4s" repeatCount="indefinite"/>
-      </stop>
-      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1">
-        <animate attributeName="stop-color" values="#764ba2;#f093fb;#667eea;#764ba2" dur="4s" repeatCount="indefinite"/>
-      </stop>
-    </linearGradient>
-  </defs>
-  <rect width="100%" height="100%" fill="url(#gradient)"/>
-  <text x="50%" y="40%" font-family="Arial, sans-serif" font-size="60" font-weight="bold" fill="white" text-anchor="middle" dominant-baseline="middle">
-    CryptoPrism DB Monitor
-  </text>
-  <text x="50%" y="60%" font-family="Arial, sans-serif" font-size="18" fill="white" text-anchor="middle" dominant-baseline="middle" opacity="0.9">
-    📊 Professional Database &amp; ETL Monitoring Dashboard v1.2.0
-  </text>
-  <text x="50%" y="75%" font-family="Arial, sans-serif" font-size="14" fill="white" text-anchor="middle" dominant-baseline="middle" opacity="0.8">
-    Real-time monitoring, performance analytics, and quality assurance
-  </text>
-</svg>
+<!-- 🎨 Dark Glow Animated Banner (Option A: Cyberpunk Aesthetic) -->
+<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=6,11,20&height=300&section=header&text=CryptoPrism%20DB%20Monitor%20📊&fontSize=60&fontColor=00fff2&animation=twinkling&fontAlignY=38&desc=⚡%20Real-time%20ETL%20%26%20Database%20Analytics%20%7C%20Performance%20Optimized&descSize=18&descAlignY=60&descAlign=50&stroke=00fff2&strokeWidth=2" width="100%"/>
+
+<!-- Dynamic Status Line (Auto-updated daily by GitHub Actions) -->
+<!--DATE_START-->
+<p align="center">
+  <b>📅 Last Updated:</b> Oct 26, 2025 |
+  <b>🚀 Version:</b> v1.2.0 |
+  <b>✅ Status:</b> Production |
+  <b>⚡ Performance:</b> 75% Faster
+</p>
+<!--DATE_END-->
 
 <!-- Enhanced Badge Collection -->
 <p align="center">
   <!-- Status Badges -->
-  <img src="https://img.shields.io/badge/Version-1.1.3-brightgreen?style=for-the-badge&logo=semantic-release&logoColor=white" alt="Version"/>
+  <img src="https://img.shields.io/badge/Version-1.2.0-brightgreen?style=for-the-badge&logo=semantic-release&logoColor=white" alt="Version"/>
   <img src="https://img.shields.io/badge/Production-Ready-success?style=for-the-badge&logo=github-actions&logoColor=white" alt="Production"/>
   <img src="https://img.shields.io/badge/ETL-Monitoring-blue?style=for-the-badge&logo=apache-airflow&logoColor=white" alt="ETL"/>
 </p>

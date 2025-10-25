@@ -1,0 +1,75 @@
+name: 🤖 Auto-Update Banner Date
+
+on:
+  schedule:
+    # Runs every day at 00:01 UTC
+    - cron: '1 0 * * *'
+
+  # Allows manual trigger from Actions tab
+  workflow_dispatch:
+
+jobs:
+  update-readme-banner:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 📅 Update banner date and stats
+        run: |
+          # Get current date in format: "Oct 26, 2025"
+          CURRENT_DATE=$(date +"%b %d, %Y")
+
+          # Update the dynamic status line
+          sed -i "/<!--DATE_START-->/,/<!--DATE_END-->/c\<!--DATE_START-->\n<p align=\"center\">\n  <b>📅 Last Updated:</b> ${CURRENT_DATE} |\n  <b>🚀 Version:</b> v1.2.0 |\n  <b>✅ Status:</b> Production |\n  <b>⚡ Performance:</b> 75% Faster\n</p>\n<!--DATE_END-->" README.md
+
+          echo "✅ Banner updated with date: ${CURRENT_DATE}"
+
+      - name: 🔍 Check for changes
+        id: check_changes
+        run: |
+          if git diff --quiet README.md; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "ℹ️ No changes detected"
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "✅ Changes detected"
+          fi
+
+      - name: 💾 Commit and push changes
+        if: steps.check_changes.outputs.changed == 'true'
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add README.md
+          git commit -m "🤖 Auto-update banner date: $(date +"%b %d, %Y")
+
+          Automated update by GitHub Actions
+
+          🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+          Co-Authored-By: Claude <noreply@anthropic.com>"
+          git push
+          echo "✅ Changes pushed successfully!"
+
+      - name: 📊 Summary
+        if: steps.check_changes.outputs.changed == 'true'
+        run: |
+          echo "### 🎉 Banner Updated Successfully!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Date Updated:** $(date +"%b %d, %Y")" >> $GITHUB_STEP_SUMMARY
+          echo "- **File:** README.md" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit:** Automated daily update" >> $GITHUB_STEP_SUMMARY
+
+      - name: ℹ️ No Update Needed
+        if: steps.check_changes.outputs.changed == 'false'
+        run: |
+          echo "### ℹ️ No Update Needed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Banner is already up to date!" >> $GITHUB_STEP_SUMMARY
