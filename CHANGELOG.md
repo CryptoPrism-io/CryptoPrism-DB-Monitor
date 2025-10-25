@@ -2,6 +2,33 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.0] - 2025-10-26
+
+### Added
+- **Deployment Support**: Added `.python-version` file specifying Python 3.11 for Streamlit Cloud
+- **Pipeline Monitoring**: Enhanced data pipeline monitoring page with comprehensive stage tracking
+
+### Fixed
+- **Import Errors**: Resolved missing pandas import in `utils/helpers.py`
+  - Fixed "name 'pd' is not defined" error in `cleanup_dataframe_for_display` function
+  - Added explicit pandas import for datetime type checking operations
+- **Function Imports**: Fixed missing `styled_metric_card` import in `pages/pipeline_monitor.py`
+  - Resolved undefined function error in recent updates dashboard
+
+### Changed
+- **Dependency Management**: Pinned all package versions in `requirements.txt` for stable deployment
+  - Streamlit 1.32.0 (was >=1.28.0)
+  - Pandas 2.2.0 (was >=1.5.0)
+  - Plotly 5.19.0 (was >=5.17.0)
+  - SQLAlchemy 2.0.25 (was >=2.0.0)
+  - Added explicit numpy 1.26.3 dependency
+- **Deployment**: Improved Streamlit Cloud compatibility with pinned dependencies
+
+### Technical Improvements
+- Enhanced error handling for pipeline monitoring operations
+- Improved module import organization across dashboard pages
+- Standardized dependency versions to prevent installation conflicts
+
 ## [1.1.3] - 2025-01-10
 
 ### Added

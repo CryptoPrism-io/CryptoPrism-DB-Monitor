@@ -18,7 +18,7 @@ from components.ui_components import (
 from services.database_service import db_service
 from utils.helpers import (
     format_timestamp, format_number, get_age_hours,
-    get_freshness_status, status_indicator
+    get_freshness_status, status_indicator, styled_metric_card
 )
 
 
