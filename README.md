@@ -1,10 +1,28 @@
 <div align="center">
 
 <!-- Animated Gradient Banner -->
-<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=0,2,6,12,20&height=200&section=header&text=CryptoPrism%20DB%20Monitor&fontSize=50&fontAlignY=35&animation=twinkling&fontColor=ffffff&desc=Professional%20Database%20%26%20ETL%20Monitoring%20Dashboard%20v1.1.3&descAlignY=55&descSize=18" width="100%"/>
-
-<h3>📊 Real-Time Streamlit Dashboard for Database Infrastructure & ETL Operations</h3>
-<p><i>Professional monitoring, performance analytics, and quality assurance for CryptoPrism's data pipeline</i></p>
+<svg width="100%" height="250" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1">
+        <animate attributeName="stop-color" values="#667eea;#764ba2;#f093fb;#667eea" dur="4s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1">
+        <animate attributeName="stop-color" values="#764ba2;#f093fb;#667eea;#764ba2" dur="4s" repeatCount="indefinite"/>
+      </stop>
+    </linearGradient>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#gradient)"/>
+  <text x="50%" y="40%" font-family="Arial, sans-serif" font-size="60" font-weight="bold" fill="white" text-anchor="middle" dominant-baseline="middle">
+    CryptoPrism DB Monitor
+  </text>
+  <text x="50%" y="60%" font-family="Arial, sans-serif" font-size="18" fill="white" text-anchor="middle" dominant-baseline="middle" opacity="0.9">
+    📊 Professional Database &amp; ETL Monitoring Dashboard v1.2.0
+  </text>
+  <text x="50%" y="75%" font-family="Arial, sans-serif" font-size="14" fill="white" text-anchor="middle" dominant-baseline="middle" opacity="0.8">
+    Real-time monitoring, performance analytics, and quality assurance
+  </text>
+</svg>
 
 <!-- Enhanced Badge Collection -->
 <p align="center">
@@ -294,8 +312,20 @@ The dashboard automatically creates these tables:
 
 ## 📸 Visual Examples
 
+### 🚀 Live Dashboard Screenshot
+
+<div align="center">
+
+![CryptoPrism Dashboard Overview](screenshots/dashboard-overview.png)
+
+*Real-time monitoring dashboard showing ETL pipeline status, performance metrics, and data quality indicators*
+
+</div>
+
+---
+
 <details>
-<summary><b>🖼️ Dashboard Screenshots (Click to Expand)</b></summary>
+<summary><b>🖼️ More Dashboard Screenshots (Click to Expand)</b></summary>
 
 ### Overview Dashboard
 ```

@@ -227,14 +227,14 @@ class DatabaseService:
             }
 
     def get_fe_tables_status(self) -> List[Dict]:
-        """Get status of all FE tables."""
+        """Get status of all FE tables with optimized batch query."""
         fe_tables = [
             'FE_MOMENTUM_SIGNALS', 'FE_OSCILLATORS_SIGNALS', 'FE_RATIOS_SIGNALS',
             'FE_METRICS_SIGNAL', 'FE_TVV_SIGNALS', 'FE_DMV_ALL', 'FE_DMV_SCORES',
             'FE_MOMENTUM', 'FE_OSCILLATOR'
         ]
 
-        return self._get_tables_status(fe_tables)
+        return self._get_tables_status_batch(fe_tables)
 
     def get_table_io_stats(self) -> List[Dict]:
         """Get table I/O statistics."""
@@ -379,6 +379,65 @@ class DatabaseService:
                 return 'Critical'
 
         return 'Unknown'  # No timestamp data
+
+    def _get_tables_status_batch(self, table_names: List[str]) -> List[Dict]:
+        """Get status information for multiple tables with optimized approach."""
+        results = []
+
+        # Get table existence and basic info from information_schema
+        table_list = "','".join(table_names)
+        existence_query = f"""
+        SELECT table_name
+        FROM information_schema.tables
+        WHERE table_schema = 'public'
+        AND table_name IN ('{table_list}')
+        """
+
+        try:
+            existing = self.execute_query(existence_query)
+            existing_table_names = {row['table_name'] for row in existing}
+
+            # Process each table (still individual queries but optimized)
+            for table_name in table_names:
+                if table_name in existing_table_names:
+                    try:
+                        count = self.get_table_count(table_name)
+                        table_size = self.get_table_size(table_name)
+                        latest_update = self._get_latest_timestamp(table_name)
+
+                        results.append({
+                            'table_name': table_name,
+                            'status': 'Active',
+                            'row_count': count,
+                            'table_size': table_size,
+                            'last_update': latest_update,
+                            'health': self._calculate_table_health(table_name, count, latest_update)
+                        })
+                    except Exception as e:
+                        results.append({
+                            'table_name': table_name,
+                            'status': 'Error',
+                            'row_count': 0,
+                            'table_size': 'Error',
+                            'last_update': None,
+                            'health': 'Error',
+                            'error_message': str(e)
+                        })
+                else:
+                    results.append({
+                        'table_name': table_name,
+                        'status': 'Missing',
+                        'row_count': 0,
+                        'table_size': 'N/A',
+                        'last_update': None,
+                        'health': 'Critical'
+                    })
+
+        except Exception as e:
+            print(f"Batch status check failed: {str(e)}")
+            return self._get_tables_status(table_names)
+
+        return results
 
 
 # Global database service instance

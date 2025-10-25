@@ -39,12 +39,12 @@ class DashboardConfig:
             'enable_auth': os.getenv('ENABLE_AUTH', 'true').lower() == 'true',
         })
 
-        # Caching & Performance
+        # Caching & Performance - Aggressive caching for better performance
         self._config.update({
-            'cache_ttl_data': int(os.getenv('CACHE_TTL_DATA', '300')),  # 5 minutes
-            'cache_ttl_health': int(os.getenv('CACHE_TTL_HEALTH', '60')),  # 1 minute
-            'cache_ttl_metrics': int(os.getenv('CACHE_TTL_METRICS', '600')),  # 10 minutes
-            'query_timeout': int(os.getenv('QUERY_TIMEOUT', '30')),  # 30 seconds
+            'cache_ttl_data': int(os.getenv('CACHE_TTL_DATA', '180')),  # 3 minutes
+            'cache_ttl_health': int(os.getenv('CACHE_TTL_HEALTH', '120')),  # 2 minutes
+            'cache_ttl_metrics': int(os.getenv('CACHE_TTL_METRICS', '300')),  # 5 minutes
+            'query_timeout': int(os.getenv('QUERY_TIMEOUT', '15')),  # 15 seconds
         })
 
         # Monitoring & Alerts

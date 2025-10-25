@@ -18,10 +18,15 @@ from components.ui_components import (
 from services.database_service import db_service
 from utils.helpers import format_number, send_slack_alert
 
-# Import the optimized toolkits
-from crypto_db_utils.validation.comprehensive_validation_suite import ComprehensiveValidationSuite
-from crypto_db_utils.optimization.query_optimizer import QueryOptimizer
-from crypto_db_utils.analysis.schema_analyzer import SchemaAnalyzer
+# Import the optimized toolkits (optional - graceful degradation if not available)
+try:
+    from crypto_db_utils.validation.comprehensive_validation_suite import ComprehensiveValidationSuite
+    from crypto_db_utils.optimization.query_optimizer import QueryOptimizer
+    from crypto_db_utils.analysis.schema_analyzer import SchemaAnalyzer
+    CRYPTO_UTILS_AVAILABLE = True
+except ImportError:
+    CRYPTO_UTILS_AVAILABLE = False
+    st.warning("⚠️ CryptoPrism utilities not available. Some advanced features may be limited.")
 
 
 def render_performance_page():
@@ -54,6 +59,16 @@ def render_performance_page():
 
 def run_optimized_pk_analysis():
     """Run and display results from the optimized primary key validation."""
+    if not CRYPTO_UTILS_AVAILABLE:
+        st.error("❌ CryptoPrism utilities not available. Cannot run advanced analysis.")
+        st.info("💡 Using fallback: Check database_service for basic PK analysis.")
+        # Fallback to basic analysis
+        pks = db_service.get_primary_keys()
+        if pks:
+            st.success(f"✅ Found {len(pks)} primary keys in database")
+            st.dataframe(pd.DataFrame(pks))
+        return
+
     with st.spinner("Running optimized primary key analysis..."):
         try:
             start_time = time.time()
@@ -101,6 +116,15 @@ def run_optimized_pk_analysis():
 
 def run_optimized_schema_analysis():
     """Run and display results from the schema analysis toolkit."""
+    if not CRYPTO_UTILS_AVAILABLE:
+        st.error("❌ CryptoPrism utilities not available. Cannot run advanced schema analysis.")
+        st.info("💡 Using fallback: Basic table information from database_service.")
+        # Fallback to basic schema info
+        stats = db_service.get_database_stats()
+        st.metric("Total Tables", stats.get('total_tables', 0))
+        st.metric("FE Tables", stats.get('fe_tables', 0))
+        return
+
     with st.spinner("Running table schema analysis..."):
         try:
             start_time = time.time()
